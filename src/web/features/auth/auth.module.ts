@@ -3,7 +3,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
-import { CoreModule } from '@/core/core.module';
 import { ENV } from '@/shared/enums';
 
 import { AuthController } from './auth.controller';
@@ -13,7 +12,6 @@ import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
-    CoreModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],

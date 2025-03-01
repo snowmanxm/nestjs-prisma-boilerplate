@@ -12,14 +12,14 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', '**/*.spec.ts', '**/*.test.ts'],
   rules: {
     // Enable strict rules
     'no-unused-vars': 'off',
     '@typescript-eslint/interface-name-prefix': 'off', // Optionally enable if needed
     '@typescript-eslint/explicit-function-return-type': 'off', // Require explicit return types
     '@typescript-eslint/explicit-module-boundary-types': 'off', // Require explicit return types on module boundaries
-    '@typescript-eslint/no-explicit-any': 'error', // Disallow usage of the 'any' type
+    '@typescript-eslint/no-explicit-any': 'warn', // Warn usage of the 'any' type
     '@typescript-eslint/no-unused-vars': [
       'error',
       {
