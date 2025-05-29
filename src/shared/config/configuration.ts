@@ -1,3 +1,6 @@
+import * as os from 'os';
+import * as path from 'path';
+
 import { APP_ENV, ENV } from '@/shared/enums';
 
 import { transformToBoolean, transformToInt } from '../helpers';
@@ -15,6 +18,9 @@ export const Configuration = () => ({
   [ENV.TOKEN_EXPIRE_IN]: process.env.TOKEN_EXPIRE_IN || '1h',
 
   [ENV.DATABASE_URL]: process.env.DATABASE_URL,
+
+  [ENV.UPLOAD_PATH]: path.join(os.tmpdir(), process.env.UPLOAD_FOLDER || 'upload'),
+  [ENV.BODY_SIZE]: process.env.BODY_SIZE || '10mb',
 
   [ENV.CACHE_MODE]: process.env.CACHE_MODE || 'redis',
   [ENV.CACHE_TTL]: transformToInt(process.env.CACHE_TTL || '3600'),

@@ -13,6 +13,9 @@ export enum ENV {
 
   DATABASE_URL = 'DATABASE_URL',
 
+  UPLOAD_PATH = 'UPLOAD_PATH',
+  BODY_SIZE = 'BODY_SIZE',
+
   CACHE_MODE = 'CACHE_MODE',
   CACHE_TTL = 'CACHE_TTL',
 
@@ -36,6 +39,11 @@ export enum ENV {
 export enum CACHE_TYPE {
   REDIS = 'redis',
   MEMORY = 'memory',
+}
+
+export enum REDIS_MODE {
+  SINGLE = 'single',
+  CLUSTER = 'cluster',
 }
 
 export enum LOGGER_TYPE {
