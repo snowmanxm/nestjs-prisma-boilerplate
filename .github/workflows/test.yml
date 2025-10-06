@@ -11,19 +11,36 @@ on:
       - develop
 
 env:
+  NODE_OPTIONS: '--max_old_space_size=8192'
+  APP_NAME: ${{ secrets.APP_NAME }}
+  APP_ENV: ${{ secrets.APP_ENV }}
   APP_PORT: ${{ secrets.APP_PORT }}
+  WORKER_PORT: ${{ secrets.WORKER_PORT }}
+
   USER_SECRET: ${{ secrets.USER_SECRET }}
+  USER_REFRESH_SECRET: ${{ secrets.USER_REFRESH_SECRET }}
   USER_TOKEN_EXPIRE_IN: ${{ secrets.USER_TOKEN_EXPIRE_IN }}
+  USER_REFRESH_TOKEN_EXPIRE_IN: ${{ secrets.USER_REFRESH_TOKEN_EXPIRE_IN }}
+
+  ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+  ADMIN_REFRESH_SECRET: ${{ secrets.ADMIN_REFRESH_SECRET }}
+  ADMIN_TOKEN_EXPIRE_IN: ${{ secrets.ADMIN_TOKEN_EXPIRE_IN }}
+  ADMIN_REFRESH_TOKEN_EXPIRE_IN: ${{ secrets.ADMIN_REFRESH_TOKEN_EXPIRE_IN }}
 
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
   CACHE_MODE: ${{ secrets.CACHE_MODE }}
   CACHE_TTL: ${{ secrets.CACHE_TTL }}
 
+  USE_QUEUE: ${{ secrets.USE_QUEUE }}
+
+  REDIS_MODE: ${{ secrets.REDIS_MODE }}
   REDIS_URL: ${{ secrets.REDIS_URL }}
 
   LOGGER_TYPE: ${{ secrets.LOGGER_TYPE }}
   LOGGER_MAX_FILES: ${{ secrets.LOGGER_MAX_FILES }}
+  LOGGER_LEVEL: ${{ secrets.LOGGER_LEVEL }}
+  LOGGER_DATABASE_URL: ${{ secrets.LOGGER_DATABASE_URL }}
 
   SWAGGER_TITLE: ${{ secrets.SWAGGER_TITLE }}
   SWAGGER_DESCRIPTION: ${{ secrets.SWAGGER_DESCRIPTION }}
@@ -31,10 +48,13 @@ env:
   SWAGGER_FAVICON: ${{ secrets.SWAGGER_FAVICON }}
   SWAGGER_ENDPOINT: ${{ secrets.SWAGGER_ENDPOINT }}
 
+  UPLOAD_PATH: ${{ secrets.UPLOAD_PATH }}
+  BODY_SIZE: ${{ secrets.BODY_SIZE }}
+
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: node:20.17.0-alpine
+    container: node:iron-alpine
     services:
       redis:
         image: redis
@@ -47,28 +67,23 @@ jobs:
       run:
         working-directory: ./src
 
-    strategy:
-      matrix:
-        node-version: [20.x]
-        mongodb-version: ['7.0']
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Cache node_modules
+        uses: actions/cache@v4
         with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.12.0
-        with:
-          mongodb-version: ${{ matrix.mongodb-version }}
-          mongodb-container-name: mongodb-${{ matrix.node-version }}-${{ matrix.mongodb-version }}
+          path: |
+            ~/.npm
+            ~/.cache/yarn
+            ${{ github.workspace }}/node_modules
+          key: ${{ runner.os }}-cb-backend-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cb-backend-
 
       - name: Install dependencies
-        run: yarn
+        run: yarn install --frozen-lockfile
 
       - name: Run prisma:generate
         run: yarn prisma:generate
