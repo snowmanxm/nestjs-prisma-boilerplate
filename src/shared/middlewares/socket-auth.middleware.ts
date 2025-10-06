@@ -27,7 +27,7 @@ export class SocketAuthMiddleware implements NestMiddleware {
     }
 
     try {
-      const secret = this.configService.get(ENV.SECRET);
+      const secret = this.configService.get(ENV.USER_SECRET);
       const payload = this.jwtService.verify(token, {
         secret,
       });

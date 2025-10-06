@@ -13,8 +13,8 @@ import { AuthProcessor } from './processors/auth.processor';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         return {
-          secret: configService.get(ENV.SECRET),
-          signOptions: { expiresIn: configService.get(ENV.TOKEN_EXPIRE_IN) },
+          secret: configService.get(ENV.USER_SECRET),
+          signOptions: { expiresIn: configService.get(ENV.USER_TOKEN_EXPIRE_IN) },
         };
       },
     }),

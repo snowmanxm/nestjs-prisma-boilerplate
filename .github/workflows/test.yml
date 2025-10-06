@@ -12,8 +12,8 @@ on:
 
 env:
   APP_PORT: ${{ secrets.APP_PORT }}
-  SECRET: ${{ secrets.SECRET }}
-  TOKEN_EXPIRE_IN: ${{ secrets.TOKEN_EXPIRE_IN }}
+  USER_SECRET: ${{ secrets.USER_SECRET }}
+  USER_TOKEN_EXPIRE_IN: ${{ secrets.USER_TOKEN_EXPIRE_IN }}
 
   DATABASE_URL: ${{ secrets.DATABASE_URL }}
 

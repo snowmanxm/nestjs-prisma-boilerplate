@@ -4,22 +4,31 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { createAdapter } from '@socket.io/redis-adapter';
+import { createClient } from 'redis';
 import { Server, Socket } from 'socket.io';
 
-import { LOGGER_CONTEXT } from '@/shared/enums';
+import { ENV, LOGGER_CONTEXT, WEBSOCKET_CORS_ORIGINS, WEBSOCKET_TRANSPORTS } from '@/shared/enums';
 import { WsExceptionFilter } from '@/shared/filters';
 import { SocketAuthMiddleware } from '@/shared/middlewares';
 
-@WebSocketGateway()
+@WebSocketGateway({
+  transports: WEBSOCKET_TRANSPORTS,
+  cors: {
+    origin: WEBSOCKET_CORS_ORIGINS,
+  },
+})
 @UseFilters(WsExceptionFilter)
 export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   private readonly logger = new Logger(WebsocketGateway.name);
 
-  private clients: Set<Socket> = new Set();
+  private redisPubClient;
+  private redisSubClient;
+
+  private socketClients: Set<Socket> = new Set();
 
   @WebSocketServer() server: Server;
 
@@ -28,49 +37,57 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
     private readonly socketAuthMiddleware: SocketAuthMiddleware,
   ) {}
 
+  async onModuleInit() {
+    try {
+      // Create Redis clients for pub/sub
+      this.redisPubClient = createClient({
+        url: this.configService.get(ENV.REDIS_URL),
+        socket: {
+          reconnectStrategy: (retries) => Math.min(retries * 100, 5000),
+        },
+      });
+      this.redisSubClient = this.redisPubClient.duplicate();
+
+      this.redisPubClient.on('error', (err) =>
+        this.logger.error('Redis Pub Client Error', err, LOGGER_CONTEXT.GATEWAYS),
+      );
+      this.redisSubClient.on('error', (err) =>
+        this.logger.error('Redis Sub Client Error', err, LOGGER_CONTEXT.GATEWAYS),
+      );
+
+      await Promise.allSettled([this.redisPubClient.connect(), this.redisSubClient.connect()]);
+
+      this.logger.log('Redis clients connected successfully', LOGGER_CONTEXT.GATEWAYS);
+    } catch (error) {
+      this.logger.error('Redis connection failed', error, LOGGER_CONTEXT.GATEWAYS);
+      throw error;
+    }
+  }
+
   afterInit() {
+    // Attach the Redis adapter to the server
+    if (this.redisPubClient && this.redisSubClient) {
+      this.server.adapter(createAdapter(this.redisPubClient, this.redisSubClient));
+      this.logger.log('Redis adapter attached to server', LOGGER_CONTEXT.GATEWAYS);
+    }
+
     this.server.use((socket, next) => this.socketAuthMiddleware.use(socket, next));
     this.logger.log(`${WebsocketGateway.name}: Initialized`, LOGGER_CONTEXT.GATEWAYS);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleConnection(client: Socket, ..._args: any[]) {
-    this.clients.add(client);
-
+  handleConnection(client: Socket) {
+    this.socketClients.add(client);
     this.logger.log(
-      `${WebsocketGateway.name}: Connected ${client.id}, count: ${this.clients.size}`,
+      `${WebsocketGateway.name}: Client connected ${client.id}`,
+      LOGGER_CONTEXT.GATEWAYS,
     );
   }
 
   handleDisconnect(client: Socket) {
-    this.clients.delete(client);
-
+    this.socketClients.delete(client);
     this.logger.log(
-      `${WebsocketGateway.name}: Disconnected ${client.id}, count: ${this.clients.size}`,
+      `${WebsocketGateway.name}: Client disconnected ${client.id}`,
+      LOGGER_CONTEXT.GATEWAYS,
     );
-  }
-
-  @SubscribeMessage('ping')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handlePing(client: Socket, data: any) {
-    this.logger.log(
-      `${WebsocketGateway.name}: ping from client id: ${client.id}, Payload: ${data}`,
-    );
-    return {
-      event: 'pong',
-      data,
-    };
-  }
-
-  @SubscribeMessage('chat')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleMessage(client: Socket, data: any) {
-    this.logger.log(
-      `${WebsocketGateway.name}: chat from client id: ${client.id}, Payload: ${data}`,
-    );
-    return {
-      event: 'chat',
-      data,
-    };
   }
 }

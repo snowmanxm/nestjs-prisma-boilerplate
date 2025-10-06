@@ -40,6 +40,7 @@ export class AuthController {
     const data = await this.authService.saveUser(body);
 
     await this.userQueue.add(AUTH_JOB.SEND_SIGNUP_EMAIL, data);
+
     return data;
   }
 }

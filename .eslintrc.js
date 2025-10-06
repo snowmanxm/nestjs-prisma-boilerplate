@@ -37,5 +37,36 @@ module.exports = {
     curly: 'error', // Require curly braces for all control statements
     'no-duplicate-imports': 'error', // Disallow duplicate imports
     'no-console': 'warn', // Warn when console.log statements are used
+    'object-shorthand': 'error',
+
+    '@typescript-eslint/consistent-type-imports': [
+      'error',
+      {
+        prefer: 'type-imports',
+        disallowTypeAnnotations: false,
+        fixStyle: 'inline-type-imports',
+      },
+    ],
+    // '@typescript-eslint/no-import-type-side-effects': 'error',
+
+    'padding-line-between-statements': [
+      'error',
+      // Blank lines between functions
+      { blankLine: 'always', prev: '*', next: 'function' },
+      { blankLine: 'always', prev: 'function', next: '*' },
+      { blankLine: 'always', prev: 'function', next: 'function' },
+
+      // Blank line before return statements
+      { blankLine: 'always', prev: '*', next: 'return' },
+
+      // Space after imports
+      { blankLine: 'always', prev: 'import', next: '*' },
+      { blankLine: 'any', prev: 'import', next: 'import' },
+
+      // Blank lines around export declarations
+      { blankLine: 'always', prev: '*', next: 'export' },
+      { blankLine: 'always', prev: 'export', next: '*' },
+      { blankLine: 'any', prev: 'export', next: 'export' },
+    ],
   },
 };
