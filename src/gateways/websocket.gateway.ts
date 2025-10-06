@@ -4,6 +4,7 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -89,5 +90,17 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
       `${WebsocketGateway.name}: Client disconnected ${client.id}`,
       LOGGER_CONTEXT.GATEWAYS,
     );
+  }
+
+  @SubscribeMessage('ping')
+  handlePing(client: Socket, data) {
+    this.logger.log(
+      `${WebsocketGateway.name}: ping from client id: ${client.id}, Payload: ${data}`,
+    );
+
+    return {
+      event: 'pong',
+      data,
+    };
   }
 }

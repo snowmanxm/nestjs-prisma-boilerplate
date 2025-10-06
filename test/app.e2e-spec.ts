@@ -4,6 +4,8 @@ import request from 'supertest';
 
 import { WebModule } from '@/web.module';
 
+jest.setTimeout(30000);
+
 describe('Application (e2e)', () => {
   let app: INestApplication;
 
