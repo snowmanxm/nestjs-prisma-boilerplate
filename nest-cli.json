@@ -4,6 +4,8 @@
   "sourceRoot": "src",
   "entryFile": "web",
   "compilerOptions": {
-    "deleteOutDir": true
+    "deleteOutDir": true,
+    "builder": "swc",
+    "typeCheck": true
   }
 }

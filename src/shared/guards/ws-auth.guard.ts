@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 export class WsAuthGuard extends AuthGuard('jwt') {
   getRequest(context: ExecutionContext) {
     const client = context.switchToWs().getClient();
+
     return client.handshake;
   }
 }

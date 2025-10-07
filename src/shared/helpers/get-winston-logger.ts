@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { WinstonModule } from 'nest-winston';
 import { format, transports } from 'winston';
 import { MongoDB } from 'winston-mongodb';
-import * as Transport from 'winston-transport';
+import type * as Transport from 'winston-transport';
 
 export function getWinstronLogger(
   maxFiles: string | number,
@@ -17,7 +17,7 @@ export function getWinstronLogger(
       filename: `logs/%DATE%-${dbCollectionSuffix}-error.log`,
       level: 'error',
       format: format.combine(format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), format.json()),
-      datePattern: datePattern,
+      datePattern,
       zippedArchive: false,
       maxFiles,
     }),
@@ -25,7 +25,7 @@ export function getWinstronLogger(
       level: logLevel,
       filename: `logs/%DATE%-${dbCollectionSuffix}-combined.log`,
       format: format.combine(format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), format.json()),
-      datePattern: datePattern,
+      datePattern,
       zippedArchive: false,
       maxFiles,
     }),

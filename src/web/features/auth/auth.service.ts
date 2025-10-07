@@ -24,11 +24,13 @@ export class AuthService {
     }
 
     delete user.password;
+
     return user;
   }
 
   async login(user: Pick<User, 'email' | 'id'>) {
     const payload = { email: user.email, sub: user.id };
+
     return {
       token: this.jwtService.sign(payload),
     };

@@ -1,18 +1,33 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { json, urlencoded } from 'express';
 import 'reflect-metadata';
 import 'winston-daily-rotate-file';
 
 import { ENV, LOGGER_TYPE } from './shared/enums';
+import { AllExceptionFilter } from './shared/filters';
 import { getWinstronLogger } from './shared/helpers';
 import { setupSwagger } from './swagger';
 import { WebModule } from './web/web.module';
 
+const rawBodyBuffer = (req, _res, buffer, _encoding) => {
+  if (!req.headers['stripe-signature']) {
+    return;
+  }
+
+  if (buffer && buffer.length) {
+    req.rawBody = buffer;
+  }
+};
+
 async function bootstrap() {
-  const web = await NestFactory.create(WebModule);
+  const web = await NestFactory.create(WebModule, {
+    rawBody: true,
+  });
 
   const configService = web.get(ConfigService);
+  const logger = web.get(Logger);
 
   if (configService.get<string>(ENV.LOGGER_TYPE) === LOGGER_TYPE.WINSTON) {
     const maxFiles = configService.get(ENV.LOGGER_MAX_FILES);
@@ -25,15 +40,37 @@ async function bootstrap() {
   web.useGlobalPipes(
     new ValidationPipe({
       transform: true,
+      whitelist: true,
     }),
   );
 
+  // Configure body parser with size limit from environment
+  const bodySize = configService.get(ENV.BODY_SIZE);
+  web.use(json({ verify: rawBodyBuffer, limit: bodySize }));
+  web.use(urlencoded({ verify: rawBodyBuffer, limit: bodySize, extended: true }));
+
+  web.useGlobalFilters(new AllExceptionFilter(configService, logger));
+
   setupSwagger(web);
+
+  web.enableCors({
+    origin: (origin, callback) => {
+      // Allow all subdomains of postman.co
+      const allowedOrigins: RegExp[] = [/^http:\/\/localhost/];
+
+      // Check if the request's origin matches any of the allowed patterns
+      if (!origin || allowedOrigins.some((regex) => regex.test(origin))) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Not allowed by CORS (${origin})`));
+      }
+    },
+  });
 
   const port = configService.get(ENV.APP_PORT);
   await web.listen(port);
 
-  const logger = new Logger();
   logger.log(`Application is running on: ${await web.getUrl()}`);
 }
+
 bootstrap();

@@ -11,8 +11,16 @@ export const Configuration = () => ({
   [ENV.IS_DEV]: process.env.APP_ENV === APP_ENV.DEV,
   [ENV.APP_PORT]: transformToInt(process.env.APP_PORT || '5000'),
   [ENV.WORKER_PORT]: transformToInt(process.env.WORKER_PORT || '5001'),
-  [ENV.SECRET]: process.env.SECRET || 'SECRET',
-  [ENV.TOKEN_EXPIRE_IN]: process.env.TOKEN_EXPIRE_IN || '1h',
+
+  [ENV.USER_SECRET]: process.env.USER_SECRET || 'USER_SECRET',
+  [ENV.USER_TOKEN_EXPIRE_IN]: process.env.USER_TOKEN_EXPIRE_IN || '1d',
+  [ENV.USER_REFRESH_SECRET]: process.env.USER_REFRESH_SECRET || 'USER_REFRESH_SECRET',
+  [ENV.USER_REFRESH_TOKEN_EXPIRE_IN]: process.env.USER_REFRESH_TOKEN_EXPIRE_IN || '7d',
+
+  [ENV.ADMIN_SECRET]: process.env.ADMIN_SECRET || 'ADMIN_SECRET',
+  [ENV.ADMIN_REFRESH_SECRET]: process.env.ADMIN_REFRESH_SECRET || 'ADMIN_REFRESH_SECRET',
+  [ENV.ADMIN_TOKEN_EXPIRE_IN]: process.env.ADMIN_TOKEN_EXPIRE_IN || '15m',
+  [ENV.ADMIN_REFRESH_TOKEN_EXPIRE_IN]: process.env.ADMIN_REFRESH_TOKEN_EXPIRE_IN || '7d',
 
   [ENV.DATABASE_URL]: process.env.DATABASE_URL,
 

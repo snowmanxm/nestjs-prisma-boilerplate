@@ -1,8 +1,10 @@
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { type INestApplication } from '@nestjs/common';
+import { Test, type TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 
 import { WebModule } from '@/web.module';
+
+jest.setTimeout(30000);
 
 describe('Application (e2e)', () => {
   let app: INestApplication;
@@ -22,6 +24,7 @@ describe('Application (e2e)', () => {
 
   it('/healthcheck (GET)', () => {
     const res = request(app.getHttpServer()).get('/healthcheck');
+
     return res.expect(200);
   });
 });

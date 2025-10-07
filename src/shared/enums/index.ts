@@ -4,3 +4,4 @@ export * from './env.enum';
 export * from './gender.enum';
 export * from './logger-context.enum';
 export * from './queue.enum';
+export * from './websocket.enum';

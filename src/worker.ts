@@ -27,4 +27,5 @@ async function bootstrap() {
   const logger = new Logger();
   logger.log(`Worker is running on: ${await worker.getUrl()}`);
 }
+
 bootstrap();
