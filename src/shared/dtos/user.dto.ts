@@ -1,10 +1,10 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, MaxLength } from 'class-validator';
+import { IsEmail, IsEnum, IsMongoId, IsOptional, IsString, MaxLength } from 'class-validator';
 
 import { GENDER } from '@/shared/enums';
 
 export class UserDto {
-  @IsUUID()
+  @IsMongoId()
   @ApiProperty({ description: 'ID', default: '66e1c5a0809bae0741157574' })
   id: string;
 

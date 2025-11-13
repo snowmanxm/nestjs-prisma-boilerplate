@@ -1,9 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
 import { PassportModule } from '@nestjs/passport';
 
+import { DatabaseModule } from '@/core/database/database.module';
 import { ENV } from '@/shared/enums';
+import { User, UserSchema } from '@/shared/schemas/user.schema';
 
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
@@ -12,6 +15,8 @@ import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
+    DatabaseModule,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
