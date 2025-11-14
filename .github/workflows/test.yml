@@ -6,7 +6,7 @@ on:
   #     - main
   #     - staging
   #     - develop
-  pull_request:
+  pull_request_target:
     branches:
       - develop
 
@@ -35,7 +35,7 @@ env:
   USE_QUEUE: ${{ secrets.USE_QUEUE }}
 
   REDIS_MODE: ${{ secrets.REDIS_MODE }}
-  REDIS_URL: 'redis://redis:6379'
+  REDIS_URL: ${{ secrets.REDIS_URL }}
 
   LOGGER_TYPE: ${{ secrets.LOGGER_TYPE }}
   LOGGER_MAX_FILES: ${{ secrets.LOGGER_MAX_FILES }}
