@@ -35,7 +35,7 @@ env:
   USE_QUEUE: ${{ secrets.USE_QUEUE }}
 
   REDIS_MODE: ${{ secrets.REDIS_MODE }}
-  REDIS_URL: ${{ secrets.REDIS_URL }}
+  REDIS_URL: 'redis://redis:6379'
 
   LOGGER_TYPE: ${{ secrets.LOGGER_TYPE }}
   LOGGER_MAX_FILES: ${{ secrets.LOGGER_MAX_FILES }}
@@ -58,8 +58,6 @@ jobs:
     services:
       redis:
         image: redis
-        ports:
-          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
