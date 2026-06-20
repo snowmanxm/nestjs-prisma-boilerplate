@@ -1,7 +1,7 @@
 import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 
-import { LOGGER_CONTEXT } from '../enums';
+import { InternalUrl, LOGGER_CONTEXT } from '../enums';
 import {
   createRequestLogContext,
   getLogUserId,
@@ -51,13 +51,15 @@ export class RequestLoggerMiddleware implements NestMiddleware {
           LOGGER_CONTEXT.WEB,
         );
       } else {
-        this.logger.log(
-          {
-            message: `[${req.method}] ${sanitizeLogUrl(req.originalUrl || req.url)} - ${statusCode}`,
-            ...common,
-          },
-          LOGGER_CONTEXT.WEB,
-        );
+        if (req.url !== InternalUrl.HEALTH_CHECK) {
+          this.logger.log(
+            {
+              message: `[${req.method}] ${sanitizeLogUrl(req.originalUrl || req.url)} - ${statusCode}`,
+              ...common,
+            },
+            LOGGER_CONTEXT.WEB,
+          );
+        }
       }
     });
 
